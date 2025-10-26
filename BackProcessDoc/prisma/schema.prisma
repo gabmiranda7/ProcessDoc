@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ADVOGADO
+  SECRETARIA
+}
+
+enum ProcessType {
+  CIVIL
+  PENAL
+  TRABALHISTA
+  OUTRO
+}
+
+enum ProcessStatus {
+  ABERTO
+  ANDAMENTO
+  SUSPENSO
+  ENCERRADO
+  ARQUIVADO
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  cpf          String   @unique
+  cep          String?
+  dateOfBirth  DateTime?
+  passwordHash String
+  role         Role     @default(ADVOGADO)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  processes    Process[]        @relation("Responsible")
+  documents    Document[]       @relation("UploadedBy")
+  notifications Notification[]
+
+  histories    ProcessHistory[] @relation("UserActor")
+  deadlinesCreated Deadline[]   @relation("UserCreatedBy")
+}
+
+model Process {
+  id           Int          @id @default(autoincrement())
+  processNumber String       @unique
+  clientName   String
+  responsibleId Int
+  responsible  User         @relation("Responsible", fields: [responsibleId], references: [id])
+  openingDate  DateTime
+  type         ProcessType
+  status       ProcessStatus @default(ABERTO)
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  documents    Document[]
+  histories    ProcessHistory[]
+  deadlines    Deadline[]
+}
+
+model Document {
+  id          Int      @id @default(autoincrement())
+  filename    String
+  filepath    String   
+  mimetype    String?
+  size        Int?
+  version     Int      @default(1)
+  uploadedAt  DateTime @default(now())
+  uploadedById Int
+  uploadedBy  User     @relation("UploadedBy", fields: [uploadedById], references: [id])
+  processId   Int
+  process     Process  @relation(fields: [processId], references: [id])
+}
+
+model ProcessHistory {
+  id        Int      @id @default(autoincrement())
+  processId Int
+  process   Process  @relation(fields: [processId], references: [id])
+  action    String   
+  actorId   Int?
+  actor     User?    @relation("UserActor", fields: [actorId], references: [id])
+  details   String?  
+  createdAt DateTime @default(now())
+}
+
+model Deadline {
+  id         Int      @id @default(autoincrement())
+  processId  Int
+  process    Process  @relation(fields: [processId], references: [id])
+  title      String
+  dueDate    DateTime
+  notified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  createdById Int?
+  createdBy  User?    @relation("UserCreatedBy", fields: [createdById], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
