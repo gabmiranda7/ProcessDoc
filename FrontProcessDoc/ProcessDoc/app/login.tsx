@@ -8,9 +8,11 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { FontAwesome, Feather } from "@expo/vector-icons";
+import { authApi } from "../api/index";
 
 export default function LoginScreen() {
   const [form, setForm] = useState({
@@ -18,6 +20,7 @@ export default function LoginScreen() {
     password: "",
   });
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   interface LoginForm {
     email: string;
@@ -36,40 +39,34 @@ const login = async () => {
     return;
   }
 
-  try {
-    console.log("📤 Tentando fazer login com:", form.email);
-    
-    const API_URL = "http://10.0.2.2:3000/api/auth/login";
-    
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: form.email,
-        password: form.password,
-      }),
-    });
+  setLoading(true);
+try {
+  console.log("📤 Tentando fazer login com:", form.email);
 
-    const data = await response.json();
-    console.log("📥 Resposta do backend:", data);
+  const data = await authApi.login({
+    email: form.email,
+    password: form.password,
+  });
 
-    if (response.ok && data.token) {
-      console.log("✅ Login realizado com sucesso! Token:", data.token);
-      Alert.alert("Process Doc", "Login realizado com sucesso!");
-      router.replace("/inicio");
-    } else {
-      Alert.alert("Erro", data.error || "Email ou senha incorretos.");
-    }
-  } catch (error) {
-    console.error("❌ Erro ao fazer login:", error);
-    Alert.alert(
-      "Erro de Conexão",
-      "Não foi possível conectar ao servidor. Verifique se o backend está rodando."
-    );
-  }
+  console.log("✅ Login realizado com sucesso! Token:", data.token);
+  Alert.alert("Process Doc", "Login realizado com sucesso!");
+  router.replace("/inicio");
+
+} catch (error) {
+  console.error("❌ Erro ao fazer login:", error);
+
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : "Não foi possível conectar ao servidor.";
+
+  Alert.alert("Erro", errorMessage);
+
+} finally {
+  setLoading(false);
+}
 };
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -120,8 +117,13 @@ const login = async () => {
           <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.loginButton} onPress={login}>
+        <TouchableOpacity style={styles.loginButton} onPress={login} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (          
           <Text style={styles.loginButtonText}>Entrar</Text>
+          )}
+
         </TouchableOpacity>
 
         <View style={styles.dividerContainer}>
