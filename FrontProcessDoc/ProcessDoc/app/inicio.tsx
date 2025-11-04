@@ -17,7 +17,7 @@ export default function InicioScreen() {
       title: "Documentos",
       icon: require("../assets/doc.png"),
       actions: [
-        { label: "Visualizar", onPress: () => alert("Visualizar documentos") },
+        { label: "Visualizar", onPress: () => router.push("/visudoc") },
         { label: "Cadastrar", onPress: () => router.push("/documentos") },
       ],
     },
@@ -25,7 +25,7 @@ export default function InicioScreen() {
       title: "Clientes",
       icon: require("../assets/clientes.png"),
       actions: [
-        { label: "Pesquisar", onPress: () => alert("Pesquisar clientes") },
+        { label: "Pesquisar", onPress: () => router.push("/visuclientes") },
         { label: "Cadastrar", onPress: () => router.push("/clientes") },
       ],
     },
@@ -33,77 +33,107 @@ export default function InicioScreen() {
       title: "Processos",
       icon: require("../assets/processos.png"),
       actions: [
-        { label: "Visualizar", onPress: () => alert("Visualizar processos") },
-        { label: "Cadastrar", onPress: () => alert("Cadastrar processo") },
+        { label: "Visualizar", onPress: () => router.push("/visuprocessos") },
+        { label: "Cadastrar", onPress: () => router.push("/processos") },
       ],
     },
     {
       title: "Pendências",
       icon: require("../assets/pendencias.png"),
       actions: [
-        { label: "Visualizar", onPress: () => alert("Visualizar pendências") },
-        { label: "Cadastrar", onPress: () => alert("Cadastrar pendência") },
+        { label: "Visualizar", onPress: () => router.push("/visupendencias") },
+        { label: "Cadastrar", onPress: () => router.push("/pendencias") },
       ],
     },
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.fullContainer}>
+      {/* Cabeçalho */}
       <View style={styles.header}>
         <Image
           source={require("../assets/logo.png")}
-          style={styles.logo}
+          style={styles.headerLogo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Process Doc</Text>
+        <Text style={styles.headerTitle}>Process Doc</Text>
+
+        {/* Botão de sair */}
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => router.push("/")}
+        >
+          <Text style={styles.logoutText}>Sair</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.grid}>
-        {cardData.map((card, index) => (
-          <View key={index} style={styles.card}>
-            <Image source={card.icon} style={styles.cardIcon} />
-            <Text style={styles.cardTitle}>{card.title}</Text>
-            <View style={styles.buttonGroup}>
-              {card.actions.map((action, actionIndex) => (
-                <TouchableOpacity
-                  key={actionIndex}
-                  style={styles.button}
-                  onPress={action.onPress}
-                >
-                  <Text style={styles.buttonText}>{action.label}</Text>
-                </TouchableOpacity>
-              ))}
+      {/* Cards */}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.cardContainer}>
+          {cardData.map((card, index) => (
+            <View key={index} style={styles.card}>
+              <Image source={card.icon} style={styles.cardIcon} />
+              <Text style={styles.cardTitle}>{card.title}</Text>
+              <View style={styles.buttonGroup}>
+                {card.actions.map((action, actionIndex) => (
+                  <TouchableOpacity
+                    key={actionIndex}
+                    style={styles.button}
+                    onPress={action.onPress}
+                  >
+                    <Text style={styles.buttonText}>{action.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: "#E0E7FF", 
-    padding: 20,
+  fullContainer: {
+    flex: 1,
+    backgroundColor: "#E0F2F7", // fundo azul claro
   },
   header: {
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  logo: {
-    width: 100,
-    height: 50,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#0052CC",
-  },
-  grid: {
     flexDirection: "row",
-    flexWrap: "wrap", 
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    paddingTop: 40, // espaço para a barra de status
+  },
+  headerLogo: {
+    width: 30,
+    height: 30,
+    marginRight: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#007BFF",
+  },
+  logoutButton: {
+    position: "absolute",
+    right: 20,
+    top: 45,
+  },
+  logoutText: {
+    color: "#007BFF",
+    fontWeight: "bold",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+  },
+  cardContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
   },
   card: {
@@ -111,13 +141,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 20,
     alignItems: "center",
-    width: "48%", 
+    width: "48%",
     marginBottom: 20,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 8,

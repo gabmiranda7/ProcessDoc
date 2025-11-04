@@ -17,7 +17,9 @@ const { width } = Dimensions.get("window");
 
 export default function DocumentosScreen() {
   const router = useRouter();
-  const clientesCadastrados = ["Alice", "Bruno", "Carlos"];
+
+  // 🔹 Nenhum cliente mockado
+  const clientesCadastrados: string[] = [];
   const tipos = ["CPF", "Certidão", "Identidade", "Endereço", "Intimação", "Todos"];
   const tiposDocumentos = ["CPF", "Certidão", "Identidade", "Endereço", "Intimação"];
 
@@ -29,12 +31,15 @@ export default function DocumentosScreen() {
   const [documentosAnexados, setDocumentosAnexados] = useState<{ [key: string]: string | null }>({});
 
   const buscarCliente = () => {
-    const encontrado = clientesCadastrados.find(c => c.toLowerCase() === cliente.toLowerCase());
-    if (encontrado) {
-      Alert.alert("Cliente encontrado", `Cliente: ${encontrado}`);
-    } else {
-      Alert.alert("Cliente não encontrado", "Verifique o nome digitado");
+    if (!cliente.trim()) {
+      Alert.alert("Aviso", "Digite o nome do cliente para buscar.");
+      return;
     }
+    Alert.alert("Busca de Cliente", `A busca por "${cliente}" será feita futuramente.`);
+  };
+
+  const voltarInicio = () => {
+    router.push("/inicio");
   };
 
   const anexarDocumento = (tipoDoc: string) => {
@@ -82,7 +87,7 @@ export default function DocumentosScreen() {
   return (
     <View style={styles.fullContainer}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={voltarInicio} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color="#007BFF" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -315,8 +320,8 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
     borderRadius: 8,
     marginTop: 2,
-    zIndex: 10000, 
-    elevation: 10, 
+    zIndex: 10000,
+    elevation: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

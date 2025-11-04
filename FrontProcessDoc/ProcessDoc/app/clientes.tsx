@@ -8,11 +8,13 @@ import {
   ScrollView,
   Image,
   Alert,
-  Dimensions 
+  Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import MaskInput, { Masks } from "react-native-mask-input";
+import { clientesApi } from "../api"; // usa o módulo que criamos
 
 const { width } = Dimensions.get("window");
 
@@ -26,15 +28,43 @@ export default function ClientesScreen() {
     telefone: "",
     processo: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     setForm({ ...form, [field]: value });
   };
 
-  const handleRegisterClient = () => {
-    console.log("Dados do cliente:", form);
-    Alert.alert("Sucesso", "Cliente cadastrado com sucesso!");
-    // router.push("/inicio"); // Redirecionar após o cadastro
+  const handleRegisterClient = async () => {
+    // validações mínimas
+    if (!form.nomeCompleto || !form.cpf) {
+      Alert.alert("Atenção", "Preencha pelo menos Nome e CPF.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // tenta cadastrar na API; se a API não estiver no ar, vai cair no catch
+      await clientesApi.cadastrar({
+        nomeCompleto: form.nomeCompleto,
+        dataNascimento: form.dataNascimento,
+        cpf: form.cpf,
+        endereco: form.endereco,
+        telefone: form.telefone,
+        processo: form.processo,
+      });
+
+      Alert.alert("Sucesso", "Cliente cadastrado com sucesso!");
+      // opcional: limpar formulário ou navegar
+      router.back();
+    } catch (error) {
+      console.error("Erro ao cadastrar cliente:", error);
+      Alert.alert(
+        "Erro",
+        "Não foi possível cadastrar o cliente. (Se o backend não estiver rodando, isso é esperado.)"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,9 +108,7 @@ export default function ClientesScreen() {
                 placeholderTextColor="#888"
                 keyboardType="numeric"
                 value={form.dataNascimento}
-                onChangeText={(masked) =>
-                  handleChange("dataNascimento", masked)
-                }
+                onChangeText={(masked) => handleChange("dataNascimento", masked)}
               />
             </View>
 
@@ -117,9 +145,7 @@ export default function ClientesScreen() {
                 placeholderTextColor="#888"
                 keyboardType="phone-pad"
                 value={form.telefone}
-                onChangeText={(masked) =>
-                  handleChange("telefone", masked)
-                }
+                onChangeText={(masked) => handleChange("telefone", masked)}
               />
             </View>
 
@@ -138,8 +164,13 @@ export default function ClientesScreen() {
           <TouchableOpacity
             style={styles.registerButton}
             onPress={handleRegisterClient}
+            disabled={loading}
           >
-            <Text style={styles.registerButtonText}>Cadastrar Cliente</Text>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.registerButtonText}>Cadastrar Cliente</Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -150,13 +181,13 @@ export default function ClientesScreen() {
 const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
-    backgroundColor: "#E0F2F7", 
+    backgroundColor: "#E0F2F7",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
-    backgroundColor: "#FFFFFF", 
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
     paddingTop: 40,
@@ -232,7 +263,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 20,
     alignItems: "center",
-    width: "100%", 
+    width: "100%",
   },
   registerButtonText: {
     color: "#FFFFFF",

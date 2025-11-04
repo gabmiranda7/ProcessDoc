@@ -8,11 +8,10 @@ export const getApiUrl = (): string => {
   }
 
   if (Platform.OS === 'android') {
-    return 'http://ip_local:3000';
-  } else if (Platform.OS === 'ios') {
-    return 'http://localhost:3000';
+    // substitua pelo IP da sua máquina quando for conectar ao backend (ex: 192.168.0.10:5000)
+    return 'http://192.168.X.X:5000';
   } else {
-    return 'http://localhost:3000';
+    return 'http://localhost:5000';
   }
 };
 
@@ -54,7 +53,6 @@ const apiRequest = async (
 };
 
 export const authApi = {
-
   register: async (userData: {
     name: string;
     email: string;
@@ -75,7 +73,6 @@ export const authApi = {
 };
 
 export const userApi = {
-  
   register: async (userData: {
     name: string;
     email: string;
@@ -101,8 +98,53 @@ export const userApi = {
   },
 };
 
+/* ---------------------------
+   ADICIONEI clientesApi AQUI
+   --------------------------- */
+export const clientesApi = {
+  listar: async () => {
+    return apiRequest('/api/clientes', {
+      method: 'GET',
+    });
+  },
+
+  cadastrar: async (clienteData: {
+    nomeCompleto: string;
+    dataNascimento: string;
+    cpf: string;
+    endereco: string;
+    telefone: string;
+    processo?: string;
+  }) => {
+    return apiRequest('/api/clientes', {
+      method: 'POST',
+      body: JSON.stringify(clienteData),
+    });
+  },
+
+  obterPorId: async (id: number) => {
+    return apiRequest(`/api/clientes/${id}`, {
+      method: 'GET',
+    });
+  },
+
+  editar: async (id: number, clienteData: any) => {
+    return apiRequest(`/api/clientes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(clienteData),
+    });
+  },
+
+  excluir: async (id: number) => {
+    return apiRequest(`/api/clientes/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
 export default {
   auth: authApi,
   user: userApi,
+  clientes: clientesApi,
   getApiUrl,
 };
