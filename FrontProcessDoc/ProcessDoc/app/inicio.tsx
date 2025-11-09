@@ -1,179 +1,103 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 
-export default function InicioScreen() {
+export default function InicioCliente() {
   const router = useRouter();
 
-  const cardData = [
-    {
-      title: "Documentos",
-      icon: require("../assets/doc.png"),
-      actions: [
-        { label: "Visualizar", onPress: () => router.push("/visudoc") },
-        { label: "Cadastrar", onPress: () => router.push("/documentos") },
-      ],
-    },
-    {
-      title: "Clientes",
-      icon: require("../assets/clientes.png"),
-      actions: [
-        { label: "Pesquisar", onPress: () => router.push("/visuclientes") },
-        { label: "Cadastrar", onPress: () => router.push("/clientes") },
-      ],
-    },
-    {
-      title: "Processos",
-      icon: require("../assets/processos.png"),
-      actions: [
-        { label: "Visualizar", onPress: () => router.push("/visuprocessos") },
-        { label: "Cadastrar", onPress: () => router.push("/processos") },
-      ],
-    },
-    {
-      title: "Pendências",
-      icon: require("../assets/pendencias.png"),
-      actions: [
-        { label: "Visualizar", onPress: () => router.push("/visupendencias") },
-        { label: "Cadastrar", onPress: () => router.push("/pendencias") },
-      ],
-    },
-  ];
-
   return (
-    <View style={styles.fullContainer}>
-      {/* Cabeçalho */}
-      <View style={styles.header}>
-        <Image
-          source={require("../assets/logo.png")}
-          style={styles.headerLogo}
-          resizeMode="contain"
-        />
-        <Text style={styles.headerTitle}>Process Doc</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Bem-vindo(a) 👋</Text>
+      <Text style={styles.subtitle}>Acesse as seções abaixo para gerenciar seus dados:</Text>
 
-        {/* Botão de sair */}
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => router.push("/")}
-        >
-          <Text style={styles.logoutText}>Sair</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Cards */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.cardContainer}>
-          {cardData.map((card, index) => (
-            <View key={index} style={styles.card}>
-              <Image source={card.icon} style={styles.cardIcon} />
-              <Text style={styles.cardTitle}>{card.title}</Text>
-              <View style={styles.buttonGroup}>
-                {card.actions.map((action, actionIndex) => (
-                  <TouchableOpacity
-                    key={actionIndex}
-                    style={styles.button}
-                    onPress={action.onPress}
-                  >
-                    <Text style={styles.buttonText}>{action.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          ))}
+      <View style={styles.cardGrid}>
+        {/* CLIENTES */}
+        <View style={styles.card}>
+          <Image source={require("../assets/clientes.png")} style={styles.icon} />
+          <Text style={styles.cardTitle}>Clientes</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/clientes")}>
+              <Text style={styles.btnText}>Novo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/visuclientes")}>
+              <Text style={styles.btnText}>Ver</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </ScrollView>
-    </View>
+
+        {/* DOCUMENTOS */}
+        <View style={styles.card}>
+          <Image source={require("../assets/doc.png")} style={styles.icon} />
+          <Text style={styles.cardTitle}>Documentos</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/documentos")}>
+              <Text style={styles.btnText}>Novo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/visudoc")}>
+              <Text style={styles.btnText}>Ver</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* PENDÊNCIAS */}
+        <View style={styles.card}>
+          <Image source={require("../assets/pendencias.png")} style={styles.icon} />
+          <Text style={styles.cardTitle}>Pendências</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/pendencias")}>
+              <Text style={styles.btnText}>Novo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/visupendencias")}>
+              <Text style={styles.btnText}>Ver</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* PROCESSOS */}
+        <View style={styles.card}>
+          <Image source={require("../assets/processos.png")} style={styles.icon} />
+          <Text style={styles.cardTitle}>Processos</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/processos")}>
+              <Text style={styles.btnText}>Novo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={() => router.push("/visuprocessos")}>
+              <Text style={styles.btnText}>Ver</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  fullContainer: {
-    flex: 1,
-    backgroundColor: "#E0F2F7", // fundo azul claro
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 15,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    paddingTop: 40, // espaço para a barra de status
-  },
-  headerLogo: {
-    width: 30,
-    height: 30,
-    marginRight: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#007BFF",
-  },
-  logoutButton: {
-    position: "absolute",
-    right: 20,
-    top: 45,
-  },
-  logoutText: {
-    color: "#007BFF",
-    fontWeight: "bold",
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  cardContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
+  container: { flexGrow: 1, alignItems: "center", backgroundColor: "#E9F2FF", padding: 20 },
+  title: { fontSize: 26, fontWeight: "bold", color: "#007BFF", marginBottom: 5 },
+  subtitle: { fontSize: 15, color: "#555", marginBottom: 20 },
+  cardGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 20 },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
     borderRadius: 15,
-    padding: 20,
+    width: "45%",
     alignItems: "center",
-    width: "48%",
-    marginBottom: 20,
+    padding: 15,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowRadius: 6,
+    elevation: 5,
   },
-  cardIcon: {
-    width: 60,
-    height: 60,
-    marginBottom: 15,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 15,
-  },
-  buttonGroup: {
-    width: "100%",
-  },
-  button: {
+  icon: { width: 60, height: 60, marginBottom: 10 },
+  cardTitle: { fontSize: 18, fontWeight: "600", color: "#007BFF", marginBottom: 10 },
+  buttonRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+  btn: {
+    flex: 1,
     backgroundColor: "#007BFF",
+    marginHorizontal: 5,
+    borderRadius: 8,
     paddingVertical: 10,
-    borderRadius: 10,
     alignItems: "center",
-    width: "100%",
-    marginBottom: 8,
   },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
+  btnText: { color: "#fff", fontWeight: "600" },
 });

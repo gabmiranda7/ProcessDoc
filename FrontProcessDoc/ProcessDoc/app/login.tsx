@@ -4,255 +4,182 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   StyleSheet,
-  ScrollView,
   Image,
-  ActivityIndicator,
+  Alert,
 } from "react-native";
-import { router } from "expo-router";
-import { FontAwesome, Feather } from "@expo/vector-icons";
-import { authApi } from "../api/index";
+import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import api from "../api"; // importa o mock (authApi)
 
 export default function LoginScreen() {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  interface LoginForm {
-    email: string;
-    password: string;
-  }
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Atenção", "Preencha todos os campos!");
+      return;
+    }
 
-  type Field = keyof LoginForm;
+    try {
+      setLoading(true);
+      const res = await api.auth.login({ email, password });
 
-  const handleChange = (field: Field, value: string) => {
-    setForm({ ...form, [field]: value });
+      Alert.alert("Sucesso", "Login realizado com sucesso!");
+
+      // redireciona conforme o papel do usuário
+      if (res.role === "adm") {
+        router.replace("/adm");
+      } else {
+        router.replace("/inicio");
+      }
+    } catch (err: any) {
+      Alert.alert("Erro", err.message || "Usuário ou senha inválidos.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-const login = async () => {
-  if (!form.email || !form.password) {
-    Alert.alert("Erro", "Por favor, preencha email e senha.");
-    return;
-  }
-
-  setLoading(true);
-try {
-  console.log("📤 Tentando fazer login com:", form.email);
-
-  const data = await authApi.login({
-    email: form.email,
-    password: form.password,
-  });
-
-  console.log("✅ Login realizado com sucesso! Token:", data.token);
-  Alert.alert("Process Doc", "Login realizado com sucesso!");
-  router.replace("/inicio");
-
-} catch (error) {
-  console.error("❌ Erro ao fazer login:", error);
-
-  const errorMessage =
-    error instanceof Error
-      ? error.message
-      : "Não foi possível conectar ao servidor.";
-
-  Alert.alert("Erro", errorMessage);
-
-} finally {
-  setLoading(false);
-}
-};
-
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.loginBox}>
+    <View style={styles.container}>
+      <View style={styles.card}>
         <Image
           source={require("../assets/logo.png")}
           style={styles.logo}
           resizeMode="contain"
         />
-
         <Text style={styles.title}>Process Doc</Text>
 
-        <View style={styles.inputContainer}>
-          <FontAwesome name="user" size={20} color="#888" style={styles.icon} />
+        <View style={styles.inputGroup}>
+          <Feather name="user" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Usuário"
+            placeholder="E-mail"
             placeholderTextColor="#888"
-            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
             autoCapitalize="none"
-            value={form.email}
-            onChangeText={(t) => handleChange("email", t)}
           />
-          <View style={styles.placeholderIcon} />
         </View>
 
-        <View style={styles.inputContainer}>
-          <FontAwesome name="lock" size={20} color="#888" style={styles.icon} />
+        <View style={styles.inputGroup}>
+          <Feather name="lock" size={20} color="#888" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Senha"
             placeholderTextColor="#888"
-            secureTextEntry={!isPasswordVisible}
-            value={form.password}
-            onChangeText={(t) => handleChange("password", t)}
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
           />
-          <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={styles.passwordVisibilityToggle}
+          >
             <Feather
-              name={isPasswordVisible ? "eye" : "eye-off"}
+              name={showPassword ? "eye" : "eye-off"}
               size={20}
               color="#888"
-              style={styles.iconRight}
             />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity>
-          <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
+        <TouchableOpacity style={styles.forgotPasswordButton}>
+          <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.loginButton} onPress={login} disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (          
-          <Text style={styles.loginButtonText}>Entrar</Text>
-          )}
-
-        </TouchableOpacity>
-
-        <View style={styles.dividerContainer}>
-          <View style={styles.divider} />
-          <Text style={styles.dividerText}>OU SE VOCÊ NÃO POSSUI UMA CONTA</Text>
-          <View style={styles.divider} />
-        </View>
 
         <TouchableOpacity
-          style={styles.registerButton}
-          onPress={() => router.push('/register')}
+          style={[styles.loginButton, loading && { opacity: 0.7 }]}
+          onPress={handleLogin}
+          disabled={loading}
         >
-          <Text style={styles.registerButtonText}>REGISTRE-SE AGORA</Text>
+          <Text style={styles.loginButtonText}>
+            {loading ? "Entrando..." : "Entrar"}
+          </Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#E0E7FF",
-    padding: 20,
+    backgroundColor: "#E0F2F7",
   },
-  loginBox: {
-    width: "100%",
+  card: {
+    width: "90%",
     maxWidth: 400,
     backgroundColor: "#FFFFFF",
     borderRadius: 15,
-    padding: 25,
+    padding: 20,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowRadius: 8,
+    elevation: 5,
   },
   logo: {
-    width: 150,
+    width: 80,
     height: 80,
     marginBottom: 10,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#0052CC",
-    marginBottom: 25,
+    color: "#007BFF",
+    marginBottom: 30,
   },
-  inputContainer: {
+  inputGroup: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F0F4F8",
     borderWidth: 1,
-    borderColor: "#D1D9E6",
-    borderRadius: 10,
+    borderColor: "#E0E0E0",
+    backgroundColor: "#F9F9F9",
+    borderRadius: 8,
     marginBottom: 15,
-    paddingHorizontal: 15,
+    width: "100%",
   },
-  icon: {
-    marginRight: 10,
-  },
-  iconRight: {
-    marginLeft: 10,
-  },
-  placeholderIcon: {
-    width: 20,
-    marginLeft: 10,
+  inputIcon: {
+    paddingLeft: 15,
   },
   input: {
     flex: 1,
-    paddingVertical: 12,
+    height: 50,
     color: "#333",
     fontSize: 16,
+    paddingHorizontal: 10,
   },
-  forgotPassword: {
-    color: "#0052CC",
-    fontSize: 14,
-    alignSelf: "flex-start",
+  passwordVisibilityToggle: {
+    padding: 10,
+    paddingRight: 15,
+  },
+  forgotPasswordButton: {
+    alignSelf: "flex-end",
     marginBottom: 20,
-    marginLeft: 5,
+  },
+  forgotPasswordText: {
+    color: "#007BFF",
+    fontSize: 14,
   },
   loginButton: {
     backgroundColor: "#007BFF",
     paddingVertical: 15,
     borderRadius: 10,
-    alignItems: "center",
     width: "100%",
-    marginBottom: 20,
+    alignItems: "center",
   },
   loginButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: "#FFFFFF",
+    fontSize: 18,
     fontWeight: "bold",
-  },
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 20,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#D1D9E6",
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    color: "#888",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  registerButton: {
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    width: "100%",
-    borderWidth: 2,
-    borderColor: "#007BFF",
-  },
-  registerButtonText: {
-    color: "#007BFF",
-    fontSize: 16,
-    fontWeight: "bold",
+    textTransform: "uppercase",
   },
 });

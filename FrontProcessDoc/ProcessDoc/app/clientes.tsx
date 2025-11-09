@@ -12,9 +12,9 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 import MaskInput, { Masks } from "react-native-mask-input";
-import { clientesApi } from "../api"; // usa o módulo que criamos
+import { clientesApi } from "../api";
 
 const { width } = Dimensions.get("window");
 
@@ -27,23 +27,23 @@ export default function ClientesScreen() {
     endereco: "",
     telefone: "",
     processo: "",
+    senha: "",
   });
   const [loading, setLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     setForm({ ...form, [field]: value });
   };
 
   const handleRegisterClient = async () => {
-    // validações mínimas
-    if (!form.nomeCompleto || !form.cpf) {
-      Alert.alert("Atenção", "Preencha pelo menos Nome e CPF.");
+    if (!form.nomeCompleto || !form.cpf || !form.senha) {
+      Alert.alert("Atenção", "Preencha pelo menos Nome, CPF e Senha.");
       return;
     }
 
     setLoading(true);
     try {
-      // tenta cadastrar na API; se a API não estiver no ar, vai cair no catch
       await clientesApi.cadastrar({
         nomeCompleto: form.nomeCompleto,
         dataNascimento: form.dataNascimento,
@@ -51,10 +51,10 @@ export default function ClientesScreen() {
         endereco: form.endereco,
         telefone: form.telefone,
         processo: form.processo,
+        senha: form.senha,
       });
 
       Alert.alert("Sucesso", "Cliente cadastrado com sucesso!");
-      // opcional: limpar formulário ou navegar
       router.back();
     } catch (error) {
       console.error("Erro ao cadastrar cliente:", error);
@@ -70,7 +70,7 @@ export default function ClientesScreen() {
   return (
     <View style={styles.fullContainer}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.push("/inicio")} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color="#007BFF" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -88,6 +88,7 @@ export default function ClientesScreen() {
           <Text style={styles.title}>Cadastro de Cliente</Text>
 
           <View style={styles.formFieldsContainerFullWidth}>
+            {/* Nome */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Nome Completo</Text>
               <TextInput
@@ -99,6 +100,7 @@ export default function ClientesScreen() {
               />
             </View>
 
+            {/* Data de nascimento */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Data de Nascimento</Text>
               <MaskInput
@@ -112,6 +114,7 @@ export default function ClientesScreen() {
               />
             </View>
 
+            {/* CPF */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>CPF</Text>
               <MaskInput
@@ -125,6 +128,7 @@ export default function ClientesScreen() {
               />
             </View>
 
+            {/* Endereço */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Endereço</Text>
               <TextInput
@@ -136,6 +140,7 @@ export default function ClientesScreen() {
               />
             </View>
 
+            {/* Telefone */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Telefone</Text>
               <MaskInput
@@ -149,6 +154,30 @@ export default function ClientesScreen() {
               />
             </View>
 
+            {/* Campo de senha bonitão 👁️ */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Senha</Text>
+              <View style={styles.passwordContainer}>
+                <FontAwesome name="lock" size={18} color="#888" style={{ marginRight: 10 }} />
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Digite uma senha"
+                  placeholderTextColor="#888"
+                  secureTextEntry={!isPasswordVisible}
+                  value={form.senha}
+                  onChangeText={(t) => handleChange("senha", t)}
+                />
+                <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+                  <Feather
+                    name={isPasswordVisible ? "eye" : "eye-off"}
+                    size={20}
+                    color="#007BFF"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Processo (opcional) */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Processo (Opcional)</Text>
               <TextInput
@@ -256,6 +285,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: "#333",
     fontSize: 16,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    backgroundColor: "#F9F9F9",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: "#333",
   },
   registerButton: {
     backgroundColor: "#007BFF",
