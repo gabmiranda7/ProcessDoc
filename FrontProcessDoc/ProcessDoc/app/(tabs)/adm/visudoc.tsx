@@ -28,14 +28,14 @@ export default function VisualizarDocumentosScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.push("/inicio")}
+          onPress={() => router.push("/(tabs)/adm/adm")}
           style={styles.backButton}
         >
           <Feather name="arrow-left" size={24} color="#007BFF" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <Image
-            source={require("../assets/logo.png")}
+            source={require("../../../assets/logo.png")}
             style={styles.headerLogo}
             resizeMode="contain"
           />
@@ -109,7 +109,7 @@ export default function VisualizarDocumentosScreen() {
           {/* Botão para Cadastrar Novo Documento */}
           <TouchableOpacity
             style={styles.novoDocumentoButton}
-            onPress={() => router.push("/documentos")}
+            onPress={() => router.push("/(tabs)/adm/documentos")}
           >
             <Feather name="plus" size={20} color="#FFFFFF" />
             <Text style={styles.novoDocumentoButtonText}>Cadastrar Novo Documento</Text>

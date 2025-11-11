@@ -2,48 +2,58 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 /**
- * Retorna a URL base da API dependendo do ambiente (local, Android, etc.)
+ * 🔧 Retorna a URL base da API conforme o ambiente
  */
 export const getApiUrl = (): string => {
   const envUrl = process.env.EXPO_PUBLIC_API_URL;
   if (envUrl) return envUrl;
 
-  // 🔧 Ajuste o IP local abaixo para o seu
-  if (Platform.OS === "android") {
-    return "http://192.168.X.X:5000"; // Ex: 192.168.0.10
-  } else {
-    return "http://localhost:5000";
-  }
+  // Ajuste conforme sua rede local
+  const localIp = "192.168.X.X"; // Exemplo: 192.168.0.10
+
+  return Platform.OS === "android"
+    ? `http://${localIp}:5000`
+    : "http://localhost:5000";
 };
 
 const API_URL = getApiUrl();
 console.log("🔗 API URL configurada:", API_URL);
 
-/**
- * Mock temporário de usuários para login (sem banco de dados)
- */
+/* ============================================================
+   🔒 MOCKS TEMPORÁRIOS (SEM BANCO DE DADOS)
+============================================================ */
+
 const mockUsers = [
   { email: "cliente@teste.com", password: "123", role: "cliente" },
   { email: "adm@teste.com", password: "123", role: "adm" },
 ];
 
-/**
- * API de autenticação mockada
- */
+const mockClientes = [
+  {
+    id: 1,
+    nomeCompleto: "Maria Silva",
+    cpf: "123.456.789-00",
+    telefone: "(11) 99999-9999",
+  },
+];
+
+/* ============================================================
+   🔑 AUTENTICAÇÃO (Mock)
+============================================================ */
+
 export const authApi = {
   login: async (credentials: { email: string; password: string }) => {
     console.log("📤 Tentando login...", credentials);
 
-    // Simula verificação de credenciais
     const user = mockUsers.find(
       (u) =>
         u.email.toLowerCase() === credentials.email.toLowerCase() &&
         u.password === credentials.password
     );
 
-    if (!user) {
-      throw new Error("Credenciais inválidas");
-    }
+    await new Promise((resolve) => setTimeout(resolve, 600)); // delay fake
+
+    if (!user) throw new Error("Credenciais inválidas");
 
     return {
       token: "mock-token",
@@ -52,29 +62,43 @@ export const authApi = {
   },
 };
 
-/**
- * API de clientes (mock temporário)
- */
-export const clientesApi = {
-  cadastrar: async (cliente: any) => {
-    console.log("📤 Enviando cliente (mock):", cliente);
+/* ============================================================
+   👤 CLIENTES (Mock)
+============================================================ */
 
-    // Simula envio de dados ao servidor
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+export const clientesApi = {
+  cadastrar: async (cliente: {
+    nomeCompleto: string;
+    cpf: string;
+    telefone: string;
+  }) => {
+    console.log("📤 Cadastrando cliente (mock):", cliente);
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    const novoCliente = { id: Date.now(), ...cliente };
+    mockClientes.push(novoCliente);
+    return novoCliente;
   },
 
   listar: async () => {
-    // Simula retorno de lista de clientes
-    return [
-      {
-        id: 1,
-        nomeCompleto: "Maria Silva",
-        cpf: "123.456.789-00",
-        telefone: "(11) 99999-9999",
-      },
-    ];
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return [...mockClientes];
+  },
+
+  excluir: async (cpf: string) => {
+    const index = mockClientes.findIndex((c) => c.cpf === cpf);
+    if (index >= 0) {
+      mockClientes.splice(index, 1);
+      console.log("🗑️ Cliente removido:", cpf);
+      return true;
+    }
+    throw new Error("Cliente não encontrado");
   },
 };
+
+/* ============================================================
+   🌎 EXPORTAÇÕES
+============================================================ */
 
 export default {
   auth: authApi,
