@@ -2,119 +2,160 @@ import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
+  StyleSheet,
   Image,
   ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function AdmPainel() {
-  const router = useRouter();
+  const menuGroups = [
+    {
+      title: "Clientes",
+      icon: require("../../../assets/clientes.png"),
+      actions: [
+        { label: "Novo", icon: "user-plus", route: "/(tabs)/adm/clientes" },
+        { label: "Ver", icon: "users", route: "/(tabs)/adm/visuclientes" },
+      ],
+    },
+    {
+      title: "Documentos",
+      icon: require("../../../assets/doc.png"),
+      actions: [
+        { label: "Ver", icon: "file-text", route: "/(tabs)/adm/visudoc" },
+      ],
+    },
+    {
+      title: "Pendências",
+      icon: require("../../../assets/pendencias.png"),
+      actions: [
+        { label: "Novo", icon: "plus-circle", route: "/(tabs)/adm/pendencias" },
+        { label: "Ver", icon: "alert-circle", route: "/(tabs)/adm/visupendencias" },
+      ],
+    },
+    {
+      title: "Processos",
+      icon: require("../../../assets/processos.png"),
+      actions: [
+        { label: "Novo", icon: "plus-circle", route: "/(tabs)/adm/processos" },
+        { label: "Ver", icon: "folder", route: "/(tabs)/adm/visuprocessos" },
+      ],
+    },
+    {
+      title: "Gerenciar Usuários",
+      icon: require("../../../assets/adm.png"),
+      actions: [
+        { label: "", icon: "settings", route: "/(tabs)/adm/admgen" },
+      ],
+    },
+    {
+      title: "Visualizar Solicitações",
+      icon: require("../../../assets/solicitacoes.png"),
+      actions: [
+        { label: "", icon: "eye", route: "/(tabs)/adm/visusolicitacoes" },
+      ],
+    },
+  ];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Painel Administrativo ⚖️</Text>
-      <Text style={styles.subtitle}>Gerencie processos, clientes, documentos, pendências e usuários!.</Text>
+      <Text style={styles.title}>Bem-vindo(a)!</Text>
+      <Text style={styles.subtitle}>Escolha uma das opções abaixo:</Text>
 
-      <View style={styles.cardGrid}>
-        {/* CLIENTES */}
-        <View style={styles.card}>
-          <Image source={require("../../../assets/clientes.png")} style={styles.icon} />
-          <Text style={styles.cardTitle}>Clientes</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/clientes")}>
-              <Text style={styles.btnText}>Novo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/visuclientes")}>
-              <Text style={styles.btnText}>Ver</Text>
-            </TouchableOpacity>
+      <View style={styles.grid}>
+        {menuGroups.map((group, index) => (
+          <View key={index} style={styles.card}>
+            <Image source={group.icon} style={styles.icon} />
+            <Text style={styles.cardTitle}>{group.title}</Text>
+            <View style={styles.buttonRow}>
+              {group.actions.map((action, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.actionButton}
+                  onPress={() => router.push(action.route as any)}
+                >
+                  <Feather name={action.icon as any} size={16} color="#fff" />
+                  {action.label && <Text style={styles.buttonText}>{action.label}</Text>}
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
-
-        {/* DOCUMENTOS */}
-        <View style={styles.card}>
-          <Image source={require("../../../assets/doc.png")} style={styles.icon} />
-          <Text style={styles.cardTitle}>Documentos</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/documentos")}>
-              <Text style={styles.btnText}>Novo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/visudoc")}>
-              <Text style={styles.btnText}>Ver</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* PENDÊNCIAS */}
-        <View style={styles.card}>
-          <Image source={require("../../../assets/pendencias.png")} style={styles.icon} />
-          <Text style={styles.cardTitle}>Pendências</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/pendencias")}>
-              <Text style={styles.btnText}>Novo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/visupendencias")}>
-              <Text style={styles.btnText}>Ver</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* PROCESSOS */}
-        <View style={styles.card}>
-          <Image source={require("../../../assets/processos.png")} style={styles.icon} />
-          <Text style={styles.cardTitle}>Processos</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/processos")}>
-              <Text style={styles.btnText}>Novo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/visuprocessos")}>
-              <Text style={styles.btnText}>Ver</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* GERENCIAR CLIENTES */}
-        <View style={styles.card}>
-          <Image source={require("../../../assets/adm.png")} style={styles.icon} />
-          <Text style={styles.cardTitle}>Gerenciar Usuários</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.btn} onPress={() => router.push("/(tabs)/adm/admgen")}>
-              <Text style={styles.btnText}>Acessar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        ))}
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, alignItems: "center", backgroundColor: "#E9F2FF", padding: 20 },
-  title: { fontSize: 26, fontWeight: "bold", color: "#0052CC", marginBottom: 5 },
-  subtitle: { fontSize: 15, color: "#555", marginBottom: 20 },
-  cardGrid: { width: "100%", flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 20 },
+  container: {
+    flexGrow: 1,
+    backgroundColor: "#E9F2FF",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#0052CC",
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 20,
+  },
+  grid: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 12,
+    paddingHorizontal: 10,
+  },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 15,
-    width: "45%",
+    borderRadius: 16,
+    width: "47%",
     alignItems: "center",
-    padding: 15,
+    paddingVertical: 20,
+    paddingHorizontal: 15,
     shadowColor: "#000",
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  icon: { width: 60, height: 60, marginBottom: 10 },
-  cardTitle: { fontSize: 18, fontWeight: "600", color: "#0052CC", marginBottom: 10 },
-  buttonRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
-  btn: {
-    flex: 1,
+  icon: {
+    width: 60,
+    height: 60,
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#0052CC",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
+  actionButton: {
     backgroundColor: "#0052CC",
-    marginHorizontal: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    paddingVertical: 10,
+    flexDirection: "row",
     alignItems: "center",
+    gap: 6,
   },
-  btnText: { color: "#fff", fontWeight: "600" },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 12,
+  },
 });
